@@ -1,0 +1,107 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapter 10"
+author: "Drew Eddy"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 9 Exercises: 9.4
+- DC Chapter 10 Exercises: 10.1, 10.2, 10.3
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(DataComputing)
+```
+
+
+
+## Chapter 9 Exercises
+
+### Problem 9.4
+```{r}
+data("ZipGeography")
+```
+```{r}
+#1)
+ZipGeography%>%
+  group_by(County)%>%
+  summarise(Zip_Codes = n_distinct(County))
+#There are 1910 counties
+
+#2)
+ZipGeography%>%
+  group_by(CityName)%>%
+  summarise(Number_of_States = n_distinct(State))%>%
+  arrange(desc(Number_of_States))
+# Franklin is the most used city name, being used in 37 States
+
+#3)
+ZipGeography<-
+  ZipGeography%>%
+    group_by(State)%>%
+    mutate(State_Pop = sum(Population, na.rm=TRUE))
+ZipGeography%>%
+  select(CityName, Population, State_Pop)%>%
+  group_by(CityName)%>%
+  filter(Population > (.05 * State_Pop))%>%
+  summarise(In_Different_Cities = n_distinct(State))
+#No CityName with a population greater than 5% of its State population was used in more than one state
+
+#4)
+ZipGeography%>%
+  group_by(State)%>%
+  summarise(count = n_distinct(State), Zones = n_distinct(Timezone))%>%
+  filter(Zones > 1)%>%
+  arrange(desc(State))
+#Yes there are forty one states in more than 1 time zones
+
+#5)
+ZipGeography%>%
+  group_by(CityName)%>%
+  summarise (count = n_distinct(CityName), Zones = n_distinct(Timezone))%>%
+  filter(Zones > 1)%>%
+  arrange(desc(CityName))
+#Yes there are 3042 Cities with more than one time zone
+
+#5)
+ZipGeography%>%
+  group_by(County)%>%
+  summarise (count = n_distinct(County), Zones = n_distinct(Timezone))%>%
+  filter(Zones > 1)%>%
+  arrange(desc(County))
+#Yes there are 386 Cities with more than one time zone
+```
+
+
+
+## Chapter 10 Exercises
+
+### Problem 10.1
+Join data verbs have dataframes within the parathesis as arguments because they are the dataframes being joined to the original data frame at the beginning of the chain.
+
+### Problem 10.2
+
+For one, the lon and lat variables in countryCentoids can't just be copied and pasted in Demographics because they don't contain the same amount of cases(rows). Also, the rows are not in the same order and copying some data from one table and pasting it into the other would provide inaccurate data about the countries.
+
+### Problem 10.3
+
+1) I believe data table B has the easiest format to find the difference between 2001 and 2000 for each country. I would use the mutate data verb to create a new variable that is simply the value of 2001 minus the value for 2000 for each case.
+
+2) I think data table B would be best for this scenario, i would use a left join or inner join with Data Table 3 as the head of the chain and ContinentData as the argument to join both tables, then i would use the new table with a group_by function by continent and a summarise function with 2 new variables that sum the values of the 2000 and 2001: below is example code
+
+  Data_Table_C %>%
+    left_join(ContinentData, by = c("Country" = "County"))
+    
+  Data_Table_C %>%
+    group_by(Continent)%>%
+    summarise(2000sum = sum(Y2000), 2001sum = sum(Y2001))
+
+
